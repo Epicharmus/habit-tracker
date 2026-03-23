@@ -3,72 +3,66 @@ import User from "../models/User.js";
 import { protect } from "../middleware/auth.js";
 import jwt from "jsonwebtoken";
 
-
 const router = express.Router();
 
-// Register/create user
-router.post('/register', async (req, res) => {
+// Register
+router.post("/register", async (req, res) => {
     const { username, email, password } = req.body;
     try {
-        if (!username || !email || !password) {
-            return res.status(400).json({message: "Please fill out all fields"});
-        }
-        const userExists = await User.findOne({ email });
-        if (userExists){
-            return res.status(400).json({message: "User already exists"});
-        }
-
-        const user = await User.create({ username, email, password });
-        const token = generateToken(user._id);
-        res.status(201).json({
-            id: user._id,
-            username: user.username,
-            email: user.email,
-            token,
-        });
+    if (!username || !email || !password) {
+        return res.status(400).json({ message: "Please fill all the fields" });
     }
-    catch (err) {
-        res.status(500).json({message:"Server error"});
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+        return res.status(400).json({ message: "User already exists" });
+    }
+
+    const user = await User.create({ username, email, password });
+    const token = generateToken(user._id);
+    res.status(201).json({
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        token,
+    });
+    } catch (err) {
+    res.status(500).json({ message: "Server error" });
     }
 });
 
 // Login
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
     const { email, password } = req.body;
     try {
-        if (!email || !password){
-            return res
-                .status(400)
-                .json({ message: "Missing credentials" });
-        }
-        const user = await User.findOne({ email });
-
-        if (!user || !(await user.matchPassword(password))){
-            return res
-                .status(401)
-                .json({ message: "Credentials do not match" });
-        }
-        const token = generateToken(user._id);
-        res.status(200).json({
-            id: user._id,
-            username: user.username,
-            email: user.email,
-            token,
-        });
+    if (!email || !password) {
+        return res.status(400).json({ message: "Please fill all the fields" });
     }
-    catch (err) {
-        res.status(500).json({message:"Server error"});
+    const user = await User.findOne({ email });
+
+    if (!user || !(await user.matchPassword(password))) {
+        return res.status(401).json({ message: "Invalid credentials" });
+    }
+    const token = generateToken(user._id);
+    res.status(200).json({
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        token,
+    });
+    } catch (err) {
+    res.status(500).json({ message: "Server error" });
     }
 });
 
-// Me (Needs protected)
+// Me
 router.get("/me", protect, async (req, res) => {
-    res.status(200).json(req.user);
+res.status(200).json(req.user);
 });
 
-// Generate JWT Token
+// Generate JWT token
 const generateToken = (id) => {
-    return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: "30d"});
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
 
 export default router;
