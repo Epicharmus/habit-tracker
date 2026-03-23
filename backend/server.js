@@ -1,16 +1,15 @@
 import express from "express";
 // use .env file to store variables
 import dotenv from "dotenv";
+import authRoutes from "./routes/auth.js";
 import { connectDB } from "./config/db.js";
 dotenv.config();
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 const app = express();
 
-app.get('/', (req,res) => {
-    res.send("Hello world!");
-});
+app.use("/api/users", authRoutes)
 
 connectDB();
 
