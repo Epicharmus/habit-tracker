@@ -1,5 +1,4 @@
 import express from "express";
-// use .env file to store variables
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import { connectDB } from "./config/db.js";
@@ -11,10 +10,10 @@ const app = express();
 
 app.use(express.json());
 
-app.use("/api/users", authRoutes)
+app.use("/api/users", authRoutes);
 
 connectDB();
 
 app.listen(PORT, () => {
-    console.log(`Server started at port ${PORT}`)
+    console.log(`Server started at port ${PORT}`);
 });
